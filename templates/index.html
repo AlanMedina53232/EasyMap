@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyMap - Tu aventura, trazada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .hero-pattern {
+            background-color: #111827;
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 16c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm28 32c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM28 60c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm40-12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM12 48c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm52-20c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM24 28c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm44 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM4 24c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm68 16c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM20 40c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm40-20c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM56 56c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM8 8c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm64 48c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM40 40c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2z' fill='%231f2937' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 1.5rem;
+            z-index: 10;
+        }
+        .leaflet-tile-pane {
+            filter: grayscale(100%) invert(90%) contrast(90%);
+        }
+    </style>
+</head>
+<body class="bg-zinc-50 text-zinc-900">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-[1000] bg-white/80 backdrop-blur-md border-b border-zinc-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight">EasyMap</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600">
+                <a href="#features" class="hover:text-green-600 transition-colors">Características</a>
+                <a href="#interactive-map" class="hover:text-green-600 transition-colors">Mapa</a>
+                <a href="#" class="px-5 py-2.5 bg-zinc-900 text-white rounded-full hover:bg-zinc-700 transition-all shadow-md">Descargar App</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden hero-pattern pt-20">
+        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight">
+                Navega el mundo con <span class="text-green-500">precisión clínica.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+                Descubre rutas inexploradas y mantente seguro con la tecnología de mapeo más avanzada.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="#interactive-map" class="group relative px-8 py-4 bg-green-500 text-zinc-900 font-bold rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all transform hover:-translate-y-1">
+                    <span class="relative z-10">Explorar Mapa</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section id="interactive-map" class="py-24 bg-zinc-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="relative bg-white p-2 rounded-[1.8rem] shadow-2xl">
+                <div id="map" class="overflow-hidden border border-zinc-200"></div>
+                <div class="absolute top-6 right-6 z-[1000]">
+                    <div class="bg-white/90 backdrop-blur shadow-lg border border-zinc-200 p-3 rounded-xl pointer-events-none">
+                        <p class="text-[10px] uppercase font-bold text-zinc-400 mb-1">Coordenadas</p>
+                        <p class="text-xs font-mono text-zinc-800" id="coords">32.5149° N, 117.0382° W</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script para la lógica del mapa -->
+    <script src="{{ url_for('static', filename='components/map-logic.js') }}"></script>
+</body>
+</html>
