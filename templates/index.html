@@ -30,6 +30,104 @@
         .leaflet-tile-pane {
             filter: grayscale(100%) invert(90%) contrast(90%);
         }
+        /* Estilos para la interfaz de dos columnas */
+        .map-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            min-height: 600px;
+        }
+        .places-list {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid #e4e4e7;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        .places-list-header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .places-list-content {
+            overflow-y: auto;
+            flex: 1;
+            padding: 1rem;
+        }
+        .place-item {
+            background: #f4f4f5;
+            border-left: 3px solid #22c55e;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            word-break: break-word;
+            transition: all 0.2s ease;
+        }
+        .place-item:hover {
+            background: #efefef;
+            border-left-color: #16a34a;
+        }
+        .place-item:last-child {
+            margin-bottom: 0;
+        }
+        .empty-state {
+            text-align: center;
+            color: #a1a1a1;
+            padding: 2rem 1rem;
+        }
+        .empty-state svg {
+            width: 2.5rem;
+            height: 2.5rem;
+            margin: 0 auto 0.5rem;
+            opacity: 0.5;
+        }
+        /* Estilos de pestañas para móvil */
+        .tabs-container {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .map-container {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            .tabs-container {
+                display: flex;
+                gap: 0;
+                border-bottom: 2px solid #e4e4e7;
+                margin-bottom: 1rem;
+                background: white;
+                border-radius: 1rem 1rem 0 0;
+            }
+            .tab-btn {
+                flex: 1;
+                padding: 1rem;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                font-weight: 500;
+                color: #71717a;
+                transition: all 0.3s ease;
+                border-bottom: 3px solid transparent;
+                margin-bottom: -2px;
+            }
+            .tab-btn.active {
+                color: #22c55e;
+                border-bottom-color: #22c55e;
+            }
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body class="bg-zinc-50 text-zinc-900">
@@ -73,13 +171,54 @@
 
     <!-- Interactive Map Section -->
     <section id="interactive-map" class="py-24 bg-zinc-50">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="relative bg-white p-2 rounded-[1.8rem] shadow-2xl">
-                <div id="map" class="overflow-hidden border border-zinc-200"></div>
-                <div class="absolute top-6 right-6 z-[1000]">
-                    <div class="bg-white/90 backdrop-blur shadow-lg border border-zinc-200 p-3 rounded-xl pointer-events-none">
-                        <p class="text-[10px] uppercase font-bold text-zinc-400 mb-1">Coordenadas</p>
-                        <p class="text-xs font-mono text-zinc-800" id="coords">32.5149° N, 117.0382° W</p>
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Pestañas para móvil -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="map-tab" aria-label="Pestaña del Mapa">
+                    <svg class="inline w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 003 16.382V5.618a1 1 0 011.553-.894L9 7m0 13l6.447 3.268A1 1 0 0021 19.382V4.618a1 1 0 00-1.553-.894L15 7m0 13V7m0 0L9 4"></path>
+                    </svg>Mapa
+                </button>
+                <button class="tab-btn" data-tab="list-tab" aria-label="Pestaña de Lista de Lugares">
+                    <svg class="inline w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>Lista
+                </button>
+            </div>
+
+            <!-- Contenedor principal con dos columnas -->
+            <div class="map-container">
+                <!-- Sección del Mapa -->
+                <div class="tab-content active" id="map-tab">
+                    <div class="relative bg-white p-2 rounded-[1.8rem] shadow-2xl h-full">
+                        <div id="map" class="overflow-hidden border border-zinc-200"></div>
+                        <div class="absolute top-6 right-6 z-[1000]">
+                            <div class="bg-white/90 backdrop-blur shadow-lg border border-zinc-200 p-3 rounded-xl pointer-events-none">
+                                <p class="text-[10px] uppercase font-bold text-zinc-400 mb-1">Coordenadas</p>
+                                <p class="text-xs font-mono text-zinc-800" id="coords">32.5149° N, 117.0382° W</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Lista de Lugares -->
+                <div class="tab-content" id="list-tab">
+                    <div class="places-list">
+                        <div class="places-list-header">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>Lista de Lugares</span>
+                        </div>
+                        <div class="places-list-content" id="places-list-content">
+                            <div class="empty-state">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m0 0h6"></path>
+                                </svg>
+                                <p class="text-sm">Haz clic en el mapa para agregar lugares</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
