@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -69,13 +73,43 @@
             font-size: 0.875rem;
             word-break: break-word;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
         .place-item:hover {
             background: #efefef;
             border-left-color: #16a34a;
+            transform: translateX(4px);
         }
         .place-item:last-child {
             margin-bottom: 0;
+        }
+        .place-item.selected-for-route {
+            background: #dbeafe;
+            border-left-color: #3b82f6;
+        }
+        .place-item.route-start {
+            background: #dcfce7;
+            border-left-color: #22c55e;
+        }
+        .place-item.route-end {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        .route-control-panel {
+            background: white;
+            border-radius: 1rem;
+            border: 2px solid #3b82f6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
+        }
+        .route-info-panel {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
         }
         .empty-state {
             text-align: center;
@@ -190,6 +224,34 @@
             <div class="map-container">
                 <!-- Sección del Mapa -->
                 <div class="tab-content active" id="map-tab">
+                    <!-- Panel de Control de Rutas -->
+                    <div id="route-control" class="route-control-panel hidden bg-blue-50 border-l-4 border-blue-600">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-6 h-6 text-blue-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.553-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 19.382V4.618a1 1 0 00-1.553-.894L15 7m0 13V7"></path>
+                                </svg>
+                                <h3 class="font-bold text-blue-800">🛣️ MODO RUTA ACTIVADO</h3>
+                            </div>
+                            <button id="cancel-route-btn" class="text-white bg-red-600 hover:bg-red-700 font-bold text-sm px-4 py-2 rounded-lg transition-colors">
+                                ✕ SALIR
+                            </button>
+                        </div>
+                        <p id="route-instruction" class="text-sm text-blue-700 font-medium mb-2">⚠️ Modo ruta activado. Selecciona <strong>punto de inicio</strong> y <strong>punto de destino</strong></p>
+                        <div id="route-info" class="hidden route-info-panel mt-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs opacity-80">Distancia</p>
+                                    <p id="route-distance" class="text-lg font-bold">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs opacity-80">Tiempo estimado</p>
+                                    <p id="route-time" class="text-lg font-bold">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="relative bg-white p-2 rounded-[1.8rem] shadow-2xl h-full">
                         <div id="map" class="overflow-hidden border border-zinc-200"></div>
                         <div class="absolute top-6 right-6 z-[1000]">
@@ -210,6 +272,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                             <span>Lista de Lugares</span>
+                            <button id="route-mode-btn" class="ml-auto bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-xs font-semibold transition-colors" title="Calcular ruta entre dos puntos">
+                                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                                Ruta
+                            </button>
                         </div>
                         <div class="places-list-content" id="places-list-content">
                             <div class="empty-state">
