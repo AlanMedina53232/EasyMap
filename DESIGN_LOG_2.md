@@ -1,4 +1,9 @@
+
+
 # DESIGN LOG 2: Posicionamiento de Controles de Zoom y Ley de Fitts
+## URL Local:
+
+http://127.0.0.1:5000/#interactive-map
 
 ## Fecha: 3 de febrero de 2026
 
